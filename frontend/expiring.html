@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expiring Assets (1 Month) - IT Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+    <!-- Latar Belakang Ambient Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container glass-panel">
+        <!-- TOP NAVIGATION BAR -->
+        <header class="top-nav">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span>IT TRACKER</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Dashboard
+                </a>
+                <a href="expiring.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Expiring Soon
+                </a>
+                
+            </nav>
+
+            <div class="search-profile-group">
+                <div class="user-profile">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" alt="Avatar" class="avatar">
+                    <div class="user-info">
+                        <span class="user-name">Saiful Allif</span>
+                        <span class="user-role">IT Intern</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="dashboard-hero" style="margin-bottom: 24px;">
+            <div class="hero-text">
+                <h1>Expiring Assets (Next 1 Month)</h1>
+                <p>Monitor devices and warranties expiring within the upcoming 30 days</p>
+            </div>
+            <div>
+                <a href="dashboard.html" class="btn-primary" style="padding: 10px 20px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </section>
+
+        <!-- TABLE SECTION -->
+        <main class="panel glass-panel-dark" style="width: 100%;">
+            <div class="panel-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="title-icon"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Critical Expiry List (≤ 30 Days)
+                </h2>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Asset Tag / PC No.</th>
+                            <th>Category</th>
+                            <th>User Owned</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiringTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">Checking expiring assets...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/assets/expiring-soon');
+                const result = await response.json();
+                const tableBody = document.getElementById('expiringTableBody');
+
+                if (result.success && result.data.length > 0) {
+                    tableBody.innerHTML = '';
+                    result.data.forEach(asset => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="bold">${asset.asset_number}</td>
+                            <td>${asset.category}</td>
+                            <td>${asset.user_owned}</td>
+                            <td style="color: #EF4444; font-weight: 600;">${asset.expiry_date ? asset.expiry_date.split('T')[0] : '-'}</td>
+                            <td><span class="status progress">Expiring Soon</span></td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No devices expiring in the next 1 month. Excellent!</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error fetching expiring assets:', error);
+            }
+        });
+    </script>
+</body>
+</html>

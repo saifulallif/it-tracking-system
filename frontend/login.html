@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - IT Asset Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-login-body">
+
+    <!-- Kontainer utama dengan susunan Split Layout -->
+    <div class="login-split-container">
+        
+        <!-- Bahagian Kiri: Teks & Kaca Lutsinar -->
+        <div class="split-left">
+            <h1>IT Asset Tracker</h1>
+            <p>Log in to the IT Asset Tracking System to manage devices, and monitor your network infrastructure efficiently.</p>
+        </div>
+
+        <!-- Bahagian Kanan: Borang & Kaca Gelap -->
+        <div class="split-right">
+            <h2>Sign in</h2>
+            
+            <form id="loginForm">
+                <div class="dark-input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required autocomplete="username">
+                </div>
+
+                <div class="dark-input-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" required autocomplete="current-password">
+                        <button type="button" id="togglePassword" class="dark-password-toggle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-emerald">Sign in</button>
+                
+                <div class="form-footer">
+                    <span class="text-muted">Need help?</span>
+                    <a href="#" class="link-emerald">Contact IT Support</a>
+                </div>
+
+                <div id="loginError" class="error-message">Incorrect password or username.</div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Logik ringkas untuk butang mata password (khusus untuk rekaan baru)
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        if (togglePasswordBtn && passwordInput) {
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePasswordBtn.style.opacity = type === 'text' ? '1' : '0.5';
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+/* =========================================================
+   GLOBAL VARIABLES & BASE STYLES (UNTUK SEMUA HALAMAN)
+========================================================= */
+:root {
+    --text-main: #051F20; /* Gelap pekat (Darkest green) */
+    --text-muted: #163832; /* Hijau sederhana gelap */
+    --primary-color: #0B2B26; /* Hijau pekat */
+    --primary-hover: #163832; /* Hijau sederhana gelap bila di-hover */
+    --light-accent: #8EB69B; /* Hijau lembut (Soft green) */
+    --light-bg: #DAF1DE; /* Hijau keputihan (Off-white green) */
+    --mid-accent: #235347; /* Hijau pertengahan */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Gaya asas body untuk halaman Dashboard & Assets (Latar Cerah) */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--light-bg) 0%, var(--light-accent) 100%);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================
+   LIGHT GLASSMORPHISM (UNTUK HALAMAN DASHBOARD & ASSETS)
+========================================================= */
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    z-index: -1;
+}
+
+.shape-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(142, 182, 155, 0.6); /* --light-accent dengan opacity */
+    top: -100px;
+    left: -100px;
+}
+
+.shape-2 {
+    width: 300px;
+    height: 300px;
+    background: rgba(35, 83, 71, 0.4); /* --mid-accent dengan opacity */
+    bottom: -50px;
+    right: -50px;
+}
+
+.glass-panel {
+    background: rgba(218, 241, 222, 0.45); /* --light-bg */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px 0 rgba(11, 43, 38, 0.1); /* --primary-color shadow */
+    padding: 50px 40px;
+    border-radius: 24px;
+    width: 100%;
+    margin: 40px auto;
+}
+
+.form-control {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(142, 182, 155, 0.5); /* --light-accent */
+    border-radius: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: var(--mid-accent); 
+    box-shadow: 0 0 0 4px rgba(35, 83, 71, 0.15); /* --mid-accent */
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--light-bg);
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(5, 31, 32, 0.2); /* --text-main */
+}
+
+.error-message {
+    color: #ef4444; 
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 16px;
+    display: none;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* =========================================================
+   DARK GLASSMORPHISM (KHAS UNTUK HALAMAN LOGIN SPLIT)
+========================================================= */
+
+.dark-login-body {
+    /* Mengatasi gaya body asas */
+    background: url('../images/gambar-aku.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: var(--light-bg);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Tambah lapisan warna (overlay) supaya gambar tidak terlalu terang dan menenggelamkan teks */
+.dark-login-body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(5, 31, 32, 0.8) 0%, rgba(11, 43, 38, 0.6) 100%);
+    z-index: -1;
+}
+
+.login-split-container {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    min-height: 550px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(142, 182, 155, 0.2); /* --light-accent */
+    box-shadow: 0 25px 50px -12px rgba(5, 31, 32, 0.8);
+}
+
+.split-left {
+    flex: 1;
+    padding: 60px 50px;
+    background: rgba(35, 83, 71, 0.1); /* --mid-accent */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.split-left h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--light-bg);
+}
+
+.split-left p {
+    font-size: 15px;
+    color: var(--light-accent);
+    line-height: 1.6;
+}
+
+.split-right {
+    flex: 1;
+    padding: 60px 50px;
+    background: rgba(5, 31, 32, 0.85); /* --text-main (paling gelap) */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.split-right h2 {
+    font-size: 28px;
+    margin-bottom: 40px;
+    font-weight: 600;
+    color: var(--light-bg);
+}
+
+.dark-input-group {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.dark-input-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--light-accent);
+    margin-bottom: 8px;
+    text-transform: capitalize;
+}
+
+.dark-input-group input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(142, 182, 155, 0.3); /* --light-accent */
+    color: var(--light-bg);
+    font-size: 14px;
+    padding: 8px 0;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.dark-input-group input:focus {
+    border-bottom: 1px solid var(--light-accent);
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.dark-password-toggle {
+    position: absolute;
+    right: 0;
+    bottom: 8px;
+    background: none;
+    border: none;
+    color: var(--light-accent);
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s;
+}
+
+.dark-password-toggle:hover {
+    opacity: 1;
+    color: var(--light-bg);
+}
+
+.dark-password-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-emerald {
+    width: 100%;
+    background: var(--mid-accent); /* #235347 */
+    color: var(--light-bg);
+    border: none;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 4px; 
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-emerald:hover {
+    background: var(--light-accent); /* #8EB69B */
+    color: var(--primary-color);
+}
+
+.form-footer {
+    margin-top: 24px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--light-accent);
+    opacity: 0.7;
+}
+
+.link-emerald {
+    color: var(--light-accent);
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.link-emerald:hover {
+    color: var(--light-bg);
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .login-split-container {
+        flex-direction: column;
+    }
+    .split-left, .split-right {
+        padding: 40px 30px;
+    }
+}

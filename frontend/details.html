@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Details & Assignment - IT Tracker</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1b1e;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .details-card {
+            background: rgba(20, 35, 38, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #a3b8b6;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(10, 20, 22, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            background: rgba(10, 20, 22, 0.85); /* Kekal latar belakang gelap */
+            border-color: #10B981; /* Sempadan hijau zamrud */
+            color: #ffffff; /* Pastikan teks yang ditaip kekal warna putih */
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            outline: none;
+        }
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3b8b6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+        select.form-control option {
+            background-color: #142326;
+            color: #fff;
+        }
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            color: #10B981;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #10B981;
+            color: #051F20;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .btn-submit:hover {
+            background: #059669;
+            color: #fff;
+        }
+        .success-alert {
+            color: #10B981;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 16px;
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="details-card">
+        <div class="header-nav">
+            <a href="dashboard.html" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Back
+            </a>
+            <h2 style="margin: 0; font-size: 20px;">Register New Asset</h2>
+        </div>
+        
+        <p style="text-align: left; margin-bottom: 24px; color: #a3b8b6; font-size: 13px;">
+            Please enter the asset tag, expiration date, and current device owner.
+        </p>
+
+        <form id="assetDetailsForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="asset_number">Asset Tag / PC Number</label>
+                    <input type="text" id="asset_number" class="form-control" placeholder="e.g. PC-KL-042" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Device Category</label>
+                    <select id="category" class="form-control" required>
+                        <option value="" disabled selected>Select category...</option>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Printer">Printer</option>
+                        <option value="Network Device">Network Device</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="user_owned">User Owned (Current Owner)</label>
+                <input type="text" id="user_owned" class="form-control" placeholder="e.g. Saiful Allif bin Saiful Hazmi" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="expiry_date">Expiry Date (Warranty / License)</label>
+                    <input type="date" id="expiry_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="status">Device Status</label>
+                    <select id="status" class="form-control" required>
+                        <option value="Active">Active / In Use</option>
+                        <option value="Maintenance">Under Maintenance</option>
+                        <option value="Expired">Expired / Disposal</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="saveBtn">Save Asset Details</button>
+            
+            <div id="successAlert" class="success-alert">Asset information successfully recorded!</div>
+        </form>
+    </div>
+
+    <script>
+    document.getElementById('assetDetailsForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const saveBtn = document.getElementById('saveBtn');
+        const alertBox = document.getElementById('successAlert');
+        
+        const assetData = {
+            asset_number: document.getElementById('asset_number').value,
+            category: document.getElementById('category').value,
+            user_owned: document.getElementById('user_owned').value,
+            expiry_date: document.getElementById('expiry_date').value,
+            status: document.getElementById('status').value
+        };
+
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/assets/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assetData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alertBox.textContent = 'Asset successfully registered to database!';
+                alertBox.style.color = '#10B981';
+                alertBox.style.display = 'block';
+                this.reset();
+            } else {
+                throw new Error(result.message || 'Failed to save asset.');
+            }
+        } catch (error) {
+            alertBox.textContent = error.message;
+            alertBox.style.color = '#EF4444';
+            alertBox.style.display = 'block';
+        } finally {
+            saveBtn.textContent = 'Save Asset Details';
+            saveBtn.disabled = false;
+            setTimeout(() => { alertBox.style.display = 'none'; }, 4000);
+        }
+    });
+</script>
+
+    
+</body>
+</html>

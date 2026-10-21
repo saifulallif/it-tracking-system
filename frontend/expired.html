@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expired Assets - IT Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* Gaya Pop-up Edit Modal yang Mesra Pengguna (Gelap) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: rgba(20, 35, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 32px; width: 100%; max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 16px; right: 16px;
+            background: none; border: none; color: #a3b8b6;
+            cursor: pointer; font-size: 24px;
+        }
+        .close-btn:hover { color: #fff; }
+        
+        /* Gaya Edit/Renew Button */
+        .edit-btn {
+            background: rgba(239, 68, 68, 0.15); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 6px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px;
+            transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .edit-btn:hover { 
+            background: #EF4444; color: #ffffff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transform: translateY(-2px); border-color: #EF4444;
+        }
+        
+        /* Form Control (Mencegah input bertukar putih silau bila diklik) */
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #a3b8b6; margin-bottom: 6px; }
+        .form-control {
+            width: 100%; padding: 10px 14px; background: rgba(10, 20, 22, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; outline: none; box-sizing: border-box;
+        }
+        .form-control:focus { 
+            background: rgba(10, 20, 22, 0.95); 
+            border-color: #10B981; 
+            color: #ffffff; 
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); 
+        }
+        select.form-control option { background-color: #142326; color: #ffffff; padding: 10px; }
+        
+        .btn-submit { 
+            width: 100%; padding: 12px; background: #10B981; color: #051F20; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; 
+        }
+        .btn-submit:hover { background: #059669; color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+        /* Badge status khusus untuk aset luput (Merah) */
+        .status.expired-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container glass-panel">
+        <header class="top-nav">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span>IT TRACKER</span>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard
+                </a>
+                <a href="assets.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/></svg> All Assets
+                </a>
+                <a href="expired.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Expired
+                </a>
+            </nav>
+
+            <div class="search-profile-group">
+                <a href="details.html" class="btn-primary" style="padding: 8px 16px; text-decoration: none; font-size: 13px;">+ Add New Asset</a>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="dashboard-hero" style="margin-bottom: 24px;">
+            <div class="hero-text">
+                <h1 style="color: #EF4444;">Expired Assets Directory</h1>
+                <p>View and manage assets that have passed their warranty or license dates.</p>
+            </div>
+        </section>
+
+        <!-- TABLE SECTION -->
+        <main class="panel glass-panel-dark" style="width: 100%;">
+            <div class="table-container" style="max-height: 60vh; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Asset Tag / PC No.</th>
+                            <th>Category</th>
+                            <th>User Owned</th>
+                            <th>Expired Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expiredTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted);">Fetching expired assets...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Edit Pop-up untuk perbaharui aset -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h2 style="margin-top: 0; margin-bottom: 20px; color: #EF4444;">Renew / Update Asset</h2>
+            
+            <form id="editForm">
+                <input type="hidden" id="edit_id">
+                <div class="form-group">
+                    <label>Asset Tag / PC Number</label>
+                    <input type="text" id="edit_asset_number" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Device Category</label>
+                    <select id="edit_category" class="form-control" required>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Printer">Printer</option>
+                        <option value="Network Device">Network Device</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>User Owned</label>
+                    <input type="text" id="edit_user_owned" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>New Expiry Date (Renewal)</label>
+                    <input type="date" id="edit_expiry_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Device Status</label>
+                    <select id="edit_status" class="form-control" required>
+                        <option value="Active">Active / In Use</option>
+                        <option value="Maintenance">Under Maintenance</option>
+                        <option value="Expired">Expired / Disposal</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Update & Renew Asset</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchExpiredAssets);
+
+        // Tarik data SEMUA aset yang dah LUPUT
+        async function fetchExpiredAssets() {
+            try {
+                const response = await fetch('/api/assets/expired');
+                const result = await response.json();
+                const tableBody = document.getElementById('expiredTableBody');
+
+                if (result.success && result.data.length > 0) {
+                    tableBody.innerHTML = '';
+                    result.data.forEach(asset => {
+                        const dateShorthand = asset.expiry_date ? asset.expiry_date.split('T')[0] : '-';
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="bold">${asset.asset_number}</td>
+                            <td>${asset.category}</td>
+                            <td>${asset.user_owned}</td>
+                            <td style="color: #EF4444; font-weight: 600;">${dateShorthand}</td>
+                            <td><span class="status expired-badge">Expired</span></td>
+                            <td>
+                                <!-- Butang merah khas untuk halaman Expired -->
+                                <button class="edit-btn" onclick="openModal('${asset.id}', '${asset.asset_number}', '${asset.category}', '${asset.user_owned}', '${dateShorthand}', '${asset.status}')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21.5 2v6h-6M2.13 15.57a10 10 0 1 0 5.43-10.45l-5.72 5.72"></path>
+                                    </svg>
+                                    Renew
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">🎉 Hooray! No expired assets in the system.</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error fetching expired assets:', error);
+                const tableBody = document.getElementById('expiredTableBody');
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #EF4444;">Failed to load expired assets. Check server.</td></tr>`;
+            }
+        }
+
+        // Buka Pop-up Edit
+        function openModal(id, asset_number, category, user_owned, expiry_date, status) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_asset_number').value = asset_number;
+            document.getElementById('edit_category').value = category;
+            document.getElementById('edit_user_owned').value = user_owned;
+            document.getElementById('edit_expiry_date').value = expiry_date;
+            document.getElementById('edit_status').value = status;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // Tutup Pop-up Edit
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // Hantar data kemaskini ke Database bila borang di-submit
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_id').value;
+            const updatedData = {
+                asset_number: document.getElementById('edit_asset_number').value,
+                category: document.getElementById('edit_category').value,
+                user_owned: document.getElementById('edit_user_owned').value,
+                expiry_date: document.getElementById('edit_expiry_date').value,
+                status: document.getElementById('edit_status').value
+            };
+
+            try {
+                const response = await fetch(`/api/assets/update/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Asset successfully renewed!');
+                    closeModal();
+                    fetchExpiredAssets(); // Auto-refresh the list!
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                alert('Connection error occurred.');
+            }
+        });
+    </script>
+</body>
+</html>

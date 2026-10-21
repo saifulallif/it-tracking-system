@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Pustaka untuk PDF (jsPDF & autoTable) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Pustaka untuk Word (html-docx-js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Assets - IT Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* Modal Edit Pop-up */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: rgba(20, 35, 38, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 32px; width: 100%; max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 16px; right: 16px;
+            background: none; border: none; color: #a3b8b6;
+            cursor: pointer; font-size: 24px;
+        }
+        .close-btn:hover { color: #fff; }
+        
+        /* GAYA BUTTON EDIT & DELETE */
+        .action-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        .edit-btn {
+            background: rgba(16, 185, 129, 0.15); color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 6px 12px; border-radius: 20px; cursor: pointer; 
+            font-weight: 600; font-size: 12px; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .edit-btn:hover { background: #10B981; color: #ffffff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transform: translateY(-2px); border-color: #10B981; }
+
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.15); color: #EF4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 6px 12px; border-radius: 20px; cursor: pointer; 
+            font-weight: 600; font-size: 12px; transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .delete-btn:hover { background: #EF4444; color: #ffffff; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transform: translateY(-2px); border-color: #EF4444; }
+        
+        /* Form Control */
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #a3b8b6; margin-bottom: 6px; }
+        .form-control {
+            width: 100%; padding: 10px 14px; background: rgba(10, 20, 22, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; color: #fff; outline: none; box-sizing: border-box;
+        }
+        .form-control:focus { background: rgba(10, 20, 22, 0.95); border-color: #10B981; color: #ffffff; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+        select.form-control option { background-color: #142326; color: #ffffff; padding: 10px; }
+        
+        .btn-submit { width: 100%; padding: 12px; background: #10B981; color: #051F20; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; }
+        .btn-submit:hover { background: #059669; color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+
+        /* Filter Container */
+        .filter-container {
+            display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+            background: rgba(10, 20, 22, 0.4); padding: 16px; border-radius: 12px;
+            margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .filter-container input, .filter-container select { margin: 0; }
+
+        /* Pagination Styles */
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        .pagination-info { font-size: 13px; color: #a3b8b6; }
+        .pagination-controls { display: flex; gap: 8px; }
+        .page-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) { background: #10B981; border-color: #10B981; color: #051F20; font-weight: bold; }
+        .page-btn.active { background: #10B981; border-color: #10B981; color: #051F20; font-weight: bold; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container glass-panel">
+        <header class="top-nav">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <span>IT TRACKER</span>
+            </div>
+            <nav class="nav-links">
+                <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard</a>
+                <a href="assets.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/></svg> All Assets</a>
+            </nav>
+            <div class="search-profile-group" style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="exportToPDF()" class="edit-btn" style="background: rgba(239, 68, 68, 0.15); color: #EF4444; border-color: rgba(239, 68, 68, 0.4); padding: 8px 12px;">PDF</button>
+                <button onclick="exportToDOCX()" class="edit-btn" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6; border-color: rgba(59, 130, 246, 0.4); padding: 8px 12px;">DOCX</button>
+                <a href="details.html" class="btn-primary" style="padding: 8px 16px; text-decoration: none; font-size: 13px; background: #10B981; color:#051F20; font-weight:bold; border-radius:8px;">+ Add New Asset</a>
+            </div>
+        </header>
+
+        <section class="dashboard-hero" style="margin-bottom: 24px;">
+            <div class="hero-text">
+                <h1>Full Asset Directory</h1>
+                <p>View, manage, and edit all registered IT assets</p>
+            </div>
+        </section>
+
+        <!-- SEARCH & FILTER -->
+        <div class="filter-container">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by Asset Tag or User Name..." style="flex: 1; min-width: 250px;" oninput="applyFilters()">
+            <input type="date" id="dateFilter" class="form-control" style="width: auto;" onchange="applyFilters()">
+            <select id="statusFilter" class="form-control" style="width: auto; cursor: pointer;" onchange="applyFilters()">
+                <option value="All">All Status</option>
+                <option value="Active">Active / In Use</option>
+                <option value="Expired">Expired</option>
+                <option value="Maintenance">Under Maintenance</option>
+            </select>
+            <button onclick="resetFilters()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.3s;">Reset Filter</button>
+        </div>
+
+        <!-- JADUAL & PAGINATION -->
+        <main class="panel glass-panel-dark" style="width: 100%;">
+            <div class="table-container" style="max-height: 55vh; overflow-y: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Asset Tag / PC No.</th>
+                            <th>Category</th>
+                            <th>User Owned</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allAssetsBody">
+                        <tr><td colspan="6" style="text-align: center;">Loading all assets...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Kawalan Pagination -->
+            <div class="pagination-container" id="paginationControls">
+                <div class="pagination-info" id="pageInfo">Showing 0 of 0 entries</div>
+                <div class="pagination-controls" id="pageButtons"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Edit Pop-up -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h2 style="margin-top: 0; margin-bottom: 20px; color: #a3b8b6;">Edit Asset Details</h2>
+            <form id="editForm">
+                <input type="hidden" id="edit_id">
+                <div class="form-group">
+                    <label>Asset Tag / PC Number</label>
+                    <input type="text" id="edit_asset_number" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Device Category</label>
+                    <select id="edit_category" class="form-control" required>
+                        <option value="Laptop">Laptop</option>
+                        <option value="Desktop">Desktop</option>
+                        <option value="Printer">Printer</option>
+                        <option value="Network Device">Network Device</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>User Owned</label>
+                    <input type="text" id="edit_user_owned" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="date" id="edit_expiry_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Device Status</label>
+                    <select id="edit_status" class="form-control" required>
+                        <option value="Active">Active / In Use</option>
+                        <option value="Maintenance">Under Maintenance</option>
+                        <option value="Expired">Expired / Disposal</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Update Asset</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Skrip Utama -->
+    <script>
+        let globalAssets = []; 
+        let currentFilteredData = [];
+        
+        // Tetapan Pagination
+        let currentPage = 1;
+        const itemsPerPage = 10; // Jumlah data dalam satu mukasurat
+
+        document.addEventListener('DOMContentLoaded', fetchAllAssets);
+
+        // 1. Tarik Data
+        async function fetchAllAssets() {
+            try {
+                const response = await fetch('/api/assets/all');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    globalAssets = result.data.map(asset => {
+                        let displayStatus = asset.status;
+                        if (asset.expiry_date) {
+                            const expiryDate = new Date(asset.expiry_date);
+                            if (expiryDate < today) displayStatus = 'Expired';
+                        }
+                        return { ...asset, displayStatus };
+                    });
+
+                    currentFilteredData = [...globalAssets];
+                    currentPage = 1;
+                    renderTable();
+                } else {
+                    document.getElementById('allAssetsBody').innerHTML = `<tr><td colspan="6" style="text-align: center;">No assets found.</td></tr>`;
+                    document.getElementById('pageInfo').textContent = "Showing 0 of 0 entries";
+                }
+            } catch (error) {
+                console.error('Failed to fetch assets:', error);
+            }
+        }
+
+        // 2. Render Jadual dengan Pagination
+        function renderTable() {
+            const tableBody = document.getElementById('allAssetsBody');
+            tableBody.innerHTML = '';
+
+            if (currentFilteredData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No matching assets found.</td></tr>`;
+                renderPaginationControls(0);
+                return;
+            }
+
+            // Logik Slice Array untuk Halaman Semasa
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = currentFilteredData.slice(startIndex, endIndex);
+
+            paginatedItems.forEach(asset => {
+                const dateShorthand = asset.expiry_date ? asset.expiry_date.split('T')[0] : '';
+                let statusBadge = '';
+                
+                if (asset.displayStatus === 'Active') {
+                    statusBadge = `<span style="background: rgba(16, 185, 129, 0.15); color: #10B981; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">• Active</span>`;
+                } else if (asset.displayStatus === 'Expired') {
+                    statusBadge = `<span style="background: rgba(239, 68, 68, 0.15); color: #EF4444; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">⚠ Expired</span>`;
+                } else {
+                    statusBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">${asset.displayStatus}</span>`;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="bold">${asset.asset_number}</td>
+                    <td>${asset.category}</td>
+                    <td>${asset.user_owned}</td>
+                    <td>${dateShorthand}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="action-group">
+                            <button class="edit-btn" onclick="openModal('${asset.id}', '${asset.asset_number}', '${asset.category}', '${asset.user_owned}', '${dateShorthand}', '${asset.displayStatus}')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg> Edit
+                            </button>
+                            <!-- BUTANG DELETE BARU -->
+                            <button class="delete-btn" onclick="deleteAsset('${asset.id}')">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            renderPaginationControls(currentFilteredData.length);
+        }
+
+        // 3. Render Butang Pagination
+        function renderPaginationControls(totalItems) {
+            const pageInfo = document.getElementById('pageInfo');
+            const pageButtons = document.getElementById('pageButtons');
+            pageButtons.innerHTML = '';
+
+            if (totalItems === 0) {
+                pageInfo.textContent = `Showing 0 entries`;
+                return;
+            }
+
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = ((currentPage - 1) * itemsPerPage) + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+            pageInfo.textContent = `Showing ${startItem} to ${endItem} of ${totalItems} entries`;
+
+            // Butang Previous
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.textContent = 'Prev';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { currentPage--; renderTable(); };
+            pageButtons.appendChild(prevBtn);
+
+            // Nombor Muka Surat
+            for (let i = 1; i <= totalPages; i++) {
+                const numBtn = document.createElement('button');
+                numBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                numBtn.textContent = i;
+                numBtn.onclick = () => { currentPage = i; renderTable(); };
+                pageButtons.appendChild(numBtn);
+            }
+
+            // Butang Next
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.textContent = 'Next';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { currentPage++; renderTable(); };
+            pageButtons.appendChild(nextBtn);
+        }
+
+        // 4. Logik Carian & Filter (Dikemaskini untuk menyokong Pagination)
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchDate = document.getElementById('dateFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            currentFilteredData = globalAssets.filter(asset => {
+                const textMatch = (asset.asset_number && asset.asset_number.toLowerCase().includes(searchTerm)) || 
+                                  (asset.user_owned && asset.user_owned.toLowerCase().includes(searchTerm));
+                const dateShorthand = asset.expiry_date ? asset.expiry_date.split('T')[0] : '';
+                const dateMatch = searchDate ? (dateShorthand === searchDate) : true;
+                const statusMatch = statusFilter === 'All' ? true : (asset.displayStatus === statusFilter);
+
+                return textMatch && dateMatch && statusMatch;
+            });
+
+            currentPage = 1; // Reset ke muka surat pertama selepas filter
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('dateFilter').value = '';
+            document.getElementById('statusFilter').value = 'All';
+            currentFilteredData = [...globalAssets];
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 5. Fungsi API DELETE
+        async function deleteAsset(id) {
+            const isConfirmed = confirm("Are you sure you want to permanently delete this asset?\nThis action cannot be undone.");
+            if (isConfirmed) {
+                try {
+                    const response = await fetch(`/api/assets/delete/${id}`, { method: 'DELETE' });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert('Asset deleted successfully!');
+                        fetchAllAssets(); // Kemas kini semula keseluruhan data daripada DB
+                    } else {
+                        alert('Error deleting asset: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('Connection error occurred while attempting to delete.');
+                }
+            }
+        }
+
+        // --- FUNGSI POPUP EDIT ---
+        function openModal(id, asset_number, category, user_owned, expiry_date, status) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_asset_number').value = asset_number;
+            document.getElementById('edit_category').value = category;
+            document.getElementById('edit_user_owned').value = user_owned;
+            document.getElementById('edit_expiry_date').value = expiry_date;
+            document.getElementById('edit_status').value = status;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_id').value;
+            const updatedData = {
+                asset_number: document.getElementById('edit_asset_number').value,
+                category: document.getElementById('edit_category').value,
+                user_owned: document.getElementById('edit_user_owned').value,
+                expiry_date: document.getElementById('edit_expiry_date').value,
+                status: document.getElementById('edit_status').value
+            };
+
+            try {
+                const response = await fetch(`/api/assets/update/${id}`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedData)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Asset successfully updated!');
+                    closeModal(); fetchAllAssets(); 
+                } else { alert('Error: ' + result.message); }
+            } catch (error) { alert('Connection error occurred.'); }
+        });
+
+        // --- EKSPORT PDF & DOCX (Eksport SEMUA data yang ditapis, bukan hanya muka surat semasa) ---
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(18); doc.setTextColor(20, 35, 38);
+            doc.text("IT Tracker - Asset Directory Report", 14, 20);
+            doc.setFontSize(10); doc.setTextColor(100);
+            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
+
+            const headers = [["Asset Tag", "Category", "User Owned", "Expiry Date", "Status"]];
+            const data = currentFilteredData.map(asset => [
+                asset.asset_number, asset.category, asset.user_owned, 
+                asset.expiry_date ? asset.expiry_date.split('T')[0] : '-', asset.displayStatus
+            ]);
+
+            doc.autoTable({ startY: 35, head: headers, body: data, theme: 'grid', headStyles: { fillColor: [16, 185, 129] }, styles: { fontSize: 10, cellPadding: 5 } });
+            doc.save("IT_Asset_Report.pdf");
+        }
+
+        function exportToDOCX() {
+            let tableRows = '';
+            currentFilteredData.forEach(asset => {
+                const dateShorthand = asset.expiry_date ? asset.expiry_date.split('T')[0] : '-';
+                tableRows += `<tr><td>${asset.asset_number}</td><td>${asset.category}</td><td>${asset.user_owned}</td><td>${dateShorthand}</td><td>${asset.displayStatus}</td></tr>`;
+            });
+
+            const content = `
+                <!DOCTYPE html><html><head><meta charset="utf-8">
+                <style>body{font-family:Arial;} h2{color:#051F20;} table{width:100%; border-collapse:collapse; margin-top:20px;} th, td{border:1px solid #ddd; text-align:left; padding:8px; font-size:12px;} th{background-color:#10B981; color:white;}</style>
+                </head><body>
+                <h2>IT Tracker - Asset Directory Report</h2><p>Generated on: ${new Date().toLocaleString()}</p>
+                <table><thead><tr><th>Asset Tag</th><th>Category</th><th>User Owned</th><th>Expiry Date</th><th>Status</th></tr></thead><tbody>${tableRows}</tbody></table>
+                </body></html>`;
+
+            const converted = htmlDocx.asBlob(content);
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(converted);
+            link.download = 'IT_Asset_Report.docx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
